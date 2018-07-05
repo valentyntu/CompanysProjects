@@ -24,6 +24,8 @@ public class Company extends BasicEntity {
 
     public void employ(Employee employee) {
         employees.add(employee);
+        employee.setCompany(this);
+        employee.assignToProject();
     }
 
     public void fire(Employee employee) {
@@ -31,8 +33,9 @@ public class Company extends BasicEntity {
         employees.remove(employee);
     }
 
-    public void startProject(Project project) {
+    public void addProject(Project project) {
         projects.add(project);
+        project.setCompany(this);
     }
 
     public void stopProject(Project project) {
