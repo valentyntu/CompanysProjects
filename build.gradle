@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'net.ltgt.apt' version '0.10'
 }
 
 group 'com.interlink.intern'
@@ -13,4 +14,9 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    compileOnly 'org.projectlombok:lombok:1.18.0'
+
+    apt "org.projectlombok:lombok:1.18.0"
 }
+
+

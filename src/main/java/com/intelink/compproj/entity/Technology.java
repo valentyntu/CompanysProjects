@@ -1,4 +1,4 @@
 package com.intelink.compproj.entity;
 
-public class Technology {
+public class Technology extends BasicEntity {
 }

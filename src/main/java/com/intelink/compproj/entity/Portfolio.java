@@ -1,4 +1,4 @@
 package com.intelink.compproj.entity;
 
-public class Portfolio {
+public class Portfolio extends BasicEntity {
 }

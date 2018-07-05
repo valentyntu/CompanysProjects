@@ -1,4 +1,4 @@
 package com.intelink.compproj.entity;
 
-public class Company {
+public class Company extends BasicEntity {
 }

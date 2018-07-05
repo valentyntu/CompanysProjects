@@ -1,4 +1,4 @@
 package com.intelink.compproj.entity;
 
-public class Phase {
+public class Phase extends BasicEntity {
 }
