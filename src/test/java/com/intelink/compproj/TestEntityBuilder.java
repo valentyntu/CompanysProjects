@@ -2,7 +2,6 @@ package com.intelink.compproj;
 
 import com.intelink.compproj.entity.Company;
 import com.intelink.compproj.entity.Employee;
-import com.intelink.compproj.entity.Phase;
 import com.intelink.compproj.entity.Project;
 import com.intelink.compproj.entity.Technology;
 
@@ -13,19 +12,19 @@ public class TestEntityBuilder {
         return company;
     }
 
-    private static Project buildProject(int phases) {
-        Project project = new Project(phases);
+    private static Project buildProject() {
+        Project project = new Project();
         return project;
     }
 
-    public static Project buildInternalProject(int phases) {
-        Project project = buildProject(phases);
+    public static Project buildInternalProject() {
+        Project project = buildProject();
         project.setCommercial(false);
         return project;
     }
 
-    public static Project buildCommercialProject(int phases) {
-        Project project = buildProject(phases);
+    public static Project buildCommercialProject() {
+        Project project = buildProject();
         project.setCommercial(true);
         return project;
     }

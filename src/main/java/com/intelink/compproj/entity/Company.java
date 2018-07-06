@@ -3,6 +3,7 @@ package com.intelink.compproj.entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,24 +23,21 @@ public class Company extends BasicEntity {
         projects = new HashSet<>();
     }
 
-    public void employ(Employee employee) {
+    public void employ(Employee employee) throws AssignmentException {
         employees.add(employee);
         employee.setCompany(this);
         employee.assignToProject();
     }
 
-    public void fire(Employee employee) {
+    public void fire(Employee employee, LocalDate now, LocalDate fireDate) {
         employee.setCompany(null);
         employees.remove(employee);
+        projects.forEach(project -> project.dismiss(employee, now, fireDate));
     }
 
     public void addProject(Project project) {
         projects.add(project);
         project.setCompany(this);
-    }
-
-    public void stopProject(Project project) {
-        projects.remove(project);
     }
 
     public Set<Project> getCommercialProjects() {
@@ -50,8 +48,10 @@ public class Company extends BasicEntity {
         return projects.stream().filter(Project::isNotCommercial).collect(Collectors.toSet());
     }
 
-    public void abandonProject(Project project) {
+    public void abandonProject(Project project, LocalDate date) {
         projects.remove(project);
-        project.getEmployees().forEach(employee -> employee.getProjects().remove(project));
+        project.getCurrentlyWorkingEmployees(date).forEach(employee -> {
+            project.getAssignments(date).forEach(assignment -> assignment.setDateFinishedWorking(date));
+        });
     }
 }

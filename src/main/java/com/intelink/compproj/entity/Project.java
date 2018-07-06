@@ -3,75 +3,32 @@ package com.intelink.compproj.entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Project extends BasicEntity {
-    @Getter
-    @Setter
-    private Set<Phase> phases;
-    @Getter
-    @Setter
-    private Phase currentPhase;
+
     private Set<Technology> requiredTechnologies;
+    @Getter
+    private List<Assignment> assignments;
     @Getter
     @Setter
     private Company company;
     @Getter
     @Setter
     private boolean commercial;
-    private boolean finished;
 
     public Project() {
-        phases = new TreeSet<>();
+        assignments = new ArrayList<>();
         requiredTechnologies = new HashSet<>();
-        finished = false;
-    }
-
-    public Project(int phases) {
-        this();
-        for (int i = 0; i < phases; i++) {
-            this.addPhase(new Phase(this));
-        }
-    }
-
-    public Set<Employee> getEmployees() {
-        Set<Employee> employees = new HashSet<>();
-        phases.forEach(phase -> employees.addAll(phase.getEmployees()));
-        return employees;
     }
 
     public Boolean isNotCommercial() {
         return !this.isCommercial();
-    }
-
-    public void start() {
-        currentPhase = ((TreeSet<Phase>) phases).first();
-    }
-
-    public void finish() {
-        finished = true;
-    }
-
-    public void addPhase(Phase phase) {
-        int phaseNumber;
-        TreeSet<Phase> phases = (TreeSet<Phase>) this.getPhases();
-        try {
-            phaseNumber = phases.last().getNumber() + 1;
-        } catch (NoSuchElementException e) {
-            phaseNumber = 1;
-        }
-        phase.setNumber(phaseNumber);
-        if (phases.isEmpty()) {
-            currentPhase = phase;
-        }
-        phases.add(phase);
-        if (finished) {
-            finished = false;
-            currentPhase = phase;
-        }
     }
 
     public void require(Technology technology) {
@@ -88,5 +45,46 @@ public class Project extends BasicEntity {
 
     public boolean isSuitableFor(Employee employee) {
         return requiredTechnologies.stream().anyMatch(employee::knows);
+    }
+
+    public List<Assignment> getAssignments(LocalDate date) {
+        return assignments.stream().filter(assignment -> assignment.isWorkingOn(date)).collect(Collectors.toList());
+    }
+
+    public List<Employee> getCurrentlyWorkingEmployees(LocalDate date) {
+        return getAssignments(date).stream().map(Assignment::getEmployee).collect(Collectors.toList());
+    }
+
+    public List<Employee> getAllEverAssignedEmployees() {
+        return getAssignments().stream().map(Assignment::getEmployee).collect(Collectors.toList());
+    }
+
+    public void assign(Employee employee, LocalDate dateStartedWorking, LocalDate dateFinishedWorking) {
+        Assignment assignment = new Assignment(employee, this, dateStartedWorking, dateFinishedWorking);
+        assignments.add(assignment);
+    }
+
+    public List<Assignment> getActiveAssignmentsOf(Employee employee, LocalDate date) {
+        return getAssignments(date).stream()
+                .filter(assignment -> assignment.getEmployee().equals(employee)).collect(Collectors.toList());
+    }
+
+    public void dismiss(Employee employee, LocalDate now, LocalDate dismissDate) {
+        getActiveAssignmentsOf(employee, now).forEach(assignment -> assignment.setDateFinishedWorking(dismissDate));
+    }
+
+    public List<Assignment> getFinishedAssignments(Employee employee, LocalDate date) {
+        return assignments.stream().filter(assignment ->
+                assignment.getEmployee().equals(employee)
+                        && assignment.isFinished(date)
+        ).collect(Collectors.toList());
+    }
+
+    public boolean isFinishedBy(LocalDate date) {
+        return assignments.stream().allMatch(assignment -> assignment.isFinished(date));
+    }
+
+    public boolean wasDevelopedBy(Employee employee) {
+        return getAllEverAssignedEmployees().contains(employee);
     }
 }
