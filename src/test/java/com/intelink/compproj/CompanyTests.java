@@ -3,10 +3,10 @@ package com.intelink.compproj;
 import com.intelink.compproj.entity.Assignment;
 import com.intelink.compproj.entity.AssignmentException;
 import com.intelink.compproj.entity.Company;
-import com.intelink.compproj.repository.CompanyRepository;
 import com.intelink.compproj.entity.Employee;
 import com.intelink.compproj.entity.Project;
 import com.intelink.compproj.entity.Technology;
+import com.intelink.compproj.repository.CompanyRepository;
 import com.intelink.compproj.service.PortfolioService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,16 +34,8 @@ public class CompanyTests extends TestEntityBuilder {
         company.employ(employee);
     }
 
-    private void tryToEmploy(Company company, Employee employee) {
-        try {
-            company.employ(employee);
-        } catch (AssignmentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     @Test
-    public void testHireEmployee() {
+    public void testHireEmployee() throws AssignmentException {
         Company company = buildCompany();
 
         Project project = buildInternalProject();
@@ -53,14 +45,14 @@ public class CompanyTests extends TestEntityBuilder {
         company.addProject(project);
 
         Employee employee = buildJuniorFrontEndDeveloper();
-        tryToEmploy(company, employee);
+        company.employ(employee);
 
         assertThat(company.getEmployees(), hasItem(employee));
         assertThat(company.getInternalProjects().iterator().next().getAllEmployees(), hasItem(employee));
     }
 
     @Test
-    public void testProjectAssignment() {
+    public void testProjectAssignment() throws AssignmentException {
         Company company = buildCompany();
 
         Project internalProject = buildInternalProject();
@@ -70,20 +62,20 @@ public class CompanyTests extends TestEntityBuilder {
         company.addProject(commercialProject);
 
         Employee employee = buildUnskilledEmployee();
-        tryToEmploy(company, employee);
+        company.employ(employee);
 
         assertThat(commercialProject.getAllEmployees(), hasItem(employee));
     }
 
     @Test
-    public void testFireEmployee() {
+    public void testFireEmployee() throws AssignmentException {
         Company company = buildCompany();
 
         Project commercialProject = buildCommercialProject();
         company.addProject(commercialProject);
 
         Employee employee = buildUnskilledEmployee();
-        tryToEmploy(company, employee);
+        company.employ(employee);
 
         LocalDate now = LocalDate.now();
         LocalDate fireDate = now;
@@ -93,7 +85,7 @@ public class CompanyTests extends TestEntityBuilder {
     }
 
     @Test
-    public void testPortfolio() {
+    public void testPortfolio() throws AssignmentException {
         CompanyRepository companyRepository = new CompanyRepository();
         PortfolioService portfolioService = new PortfolioService(companyRepository);
 
@@ -107,7 +99,7 @@ public class CompanyTests extends TestEntityBuilder {
         company.addProject(project);
 
         Employee employee = buildJuniorFrontEndDeveloper();
-        tryToEmploy(company, employee);
+        company.employ(employee);
 
         Assignment employeeAssignment = project.getAssignments().get(0);
 
@@ -126,5 +118,19 @@ public class CompanyTests extends TestEntityBuilder {
         Assert.assertTrue(portfolioService.getPortfolioOf(employee, dateOfFinishingToWork).iterator().next()
                 .getWorkDone().contains(work));
         Assert.assertEquals(1, portfolioService.getPortfolioOf(employee, dateOfFinishingToWork).size());
+    }
+
+    @Test
+    public void testGetProjectsByType() {
+        Company company = buildCompany();
+
+        Project internalProject = buildInternalProject();
+        company.addProject(internalProject);
+
+        Project commercialProject = buildCommercialProject();
+        company.addProject(commercialProject);
+
+        Assert.assertTrue(company.getCommercialProjects().stream().allMatch(Project::isCommercial));
+        Assert.assertTrue(company.getInternalProjects().stream().allMatch(Project::isNotCommercial));
     }
 }
