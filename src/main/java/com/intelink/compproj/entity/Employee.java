@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-
 public class Employee extends BasicEntity {
     @Getter
     @Setter
@@ -35,7 +34,9 @@ public class Employee extends BasicEntity {
         }
         if (newProject != null) {
             assignToProject(newProject);
-        } else throw new AssignmentException("No suitable project found.");
+        } else {
+            throw new AssignmentException("No suitable project found.");
+        }
     }
 
     public void assignToProject(Project project, LocalDate dateStartedWorking) throws AssignmentException {

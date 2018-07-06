@@ -44,7 +44,7 @@ public class Project extends BasicEntity {
     }
 
     public boolean isSuitableFor(Employee employee) {
-        return requiredTechnologies.stream().anyMatch(employee::knows);
+        return requiredTechnologies.isEmpty() || requiredTechnologies.stream().anyMatch(employee::knows);
     }
 
     public List<Assignment> getAssignments(LocalDate date) {
@@ -55,7 +55,7 @@ public class Project extends BasicEntity {
         return getAssignments(date).stream().map(Assignment::getEmployee).collect(Collectors.toList());
     }
 
-    public List<Employee> getAllEverAssignedEmployees() {
+    public List<Employee> getAllEmployees() {
         return getAssignments().stream().map(Assignment::getEmployee).collect(Collectors.toList());
     }
 
@@ -85,6 +85,6 @@ public class Project extends BasicEntity {
     }
 
     public boolean wasDevelopedBy(Employee employee) {
-        return getAllEverAssignedEmployees().contains(employee);
+        return getAllEmployees().contains(employee);
     }
 }
