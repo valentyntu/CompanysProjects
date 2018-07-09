@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -110,14 +111,18 @@ public class CompanyTests extends TestEntityBuilder {
 
         String work = "Designing frontend.";
         employeeAssignment.addWorkDone(work);
-        Assert.assertEquals(0, portfolioService.getPortfolioOf(employee, dateOfStartingOfWork).size());
+        Assert.assertTrue(portfolioService.getPortfolioOf(employee, dateOfStartingOfWork).size() == 0);
 
         LocalDate dateOfFinishingToWork = dateOfStartingOfWork.plusDays(2);
         project.getActiveAssignmentsOf(employee, dateOfStartingOfWork).iterator().next()
                 .setDateFinishedWorking(dateOfFinishingToWork);
         Assert.assertTrue(portfolioService.getPortfolioOf(employee, dateOfFinishingToWork).iterator().next()
                 .getWorkDone().contains(work));
-        Assert.assertEquals(1, portfolioService.getPortfolioOf(employee, dateOfFinishingToWork).size());
+
+        List<Assignment> portfolio = portfolioService.getPortfolioOf(employee, dateOfFinishingToWork);
+        Assert.assertEquals(1, portfolio.size());
+        portfolioService.printPortfolio(portfolio);
+
     }
 
     @Test
